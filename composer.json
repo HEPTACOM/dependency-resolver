@@ -1,15 +1,27 @@
 {
-    "name": "anthonykgross/dependency-resolver",
+    "name": "heptacom/dependency-resolver",
     "type": "library",
-    "description": "dependency-resolver",
-    "keywords": [],
-    "homepage": "http://anthonykgross.fr/",
+    "description": "Basis library to resolve dependencies with graph / tree ",
+    "keywords": [
+        "sat",
+        "sat-solver",
+        "heptaconnect"
+    ],
     "license": "MIT",
     "authors": [
         {
+            "name": "HEPTACOM GmbH",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Joshua Behrens",
+            "role": "Developer"
+        },
+        {
             "name": "Anthony K GROSS",
             "email": "anthony.k.gross@gmail.com",
-            "homepage": "https://github.com/anthonykgross"
+            "homepage": "https://github.com/anthonykgross",
+            "role": "Original developer"
         }
     ],
     "require": {
@@ -18,6 +30,9 @@
     "require-dev": {
         "ext-curl": "*",
         "phpunit/phpunit": "^6.0 | ^7.0"
+    },
+    "replaces": {
+        "anthonykgross/dependency-resolver": "*"
     },
     "autoload": {
         "psr-4": {
