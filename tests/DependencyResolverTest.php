@@ -8,8 +8,13 @@ use Algorithm\DependencyResolver;
 use Algorithm\Exception\CircularReferenceException;
 use Algorithm\Exception\MissingReferenceException;
 use Algorithm\ResolveBehaviour;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(CircularReferenceException::class)]
+#[CoversClass(DependencyResolver::class)]
+#[CoversClass(MissingReferenceException::class)]
+#[CoversClass(ResolveBehaviour::class)]
 class DependencyResolverTest extends TestCase
 {
     public function testCircleDependenciesCase1(): void

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../.dev-ops/bin/phpunit/vendor/phpunit/phpunit/phpunit.xsd"
+    beStrictAboutChangesToGlobalState="true"
+    beStrictAboutOutputDuringTests="true"
+    bootstrap="../vendor/autoload.php"
+    colors="true"
+    columns="max"
+    executionOrder="random"
+    cacheDirectory="../.build/phpunit.cache"
+    requireCoverageMetadata="true"
+    beStrictAboutCoverageMetadata="true"
+>
+    <testsuites>
+        <testsuite name="Unit Tests">
+            <directory>.</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory suffix=".php">../src/</directory>
+        </include>
+    </source>
+</phpunit>
