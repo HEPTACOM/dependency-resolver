@@ -6,9 +6,9 @@ namespace Algorithm;
 
 class ResolveBehaviour
 {
-    private $throwOnCircularReference = true;
+    private bool $throwOnCircularReference = true;
 
-    private $throwOnMissingReference = false;
+    private bool $throwOnMissingReference = false;
 
     public static function create(): self
     {

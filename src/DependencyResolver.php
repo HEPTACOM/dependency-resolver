@@ -34,11 +34,9 @@ class DependencyResolver
     }
 
     /**
-     * @param int|string $item
-     *
      * @throws Exception\ResolveException
      */
-    private static function resolver($item, array $items, array $resolved, array $unresolved, ResolveBehaviour $resolveBehaviour): array
+    private static function resolver(string|int $item, array $items, array $resolved, array $unresolved, ResolveBehaviour $resolveBehaviour): array
     {
         $unresolved[] = $item;
 

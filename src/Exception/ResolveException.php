@@ -6,39 +6,22 @@ namespace Algorithm\Exception;
 
 abstract class ResolveException extends \RuntimeException
 {
-    /**
-     * @var int|string
-     */
-    private $item;
-
-    /**
-     * @var int|string
-     */
-    private $dependency;
-
-    /**
-     * @param int|string $item
-     * @param int|string $dependency
-     */
-    public function __construct($item, $dependency, string $message, int $code = 0, ?\Throwable $previous = null)
-    {
+    public function __construct(
+        private readonly int|string $item,
+        private readonly int|string $dependency,
+        string $message,
+        int $code = 0,
+        ?\Throwable $previous = null,
+    ) {
         parent::__construct($message, $code, $previous);
-        $this->item = $item;
-        $this->dependency = $dependency;
     }
 
-    /**
-     * @return int|string
-     */
-    public function getItem()
+    public function getItem(): int|string
     {
         return $this->item;
     }
 
-    /**
-     * @return int|string
-     */
-    public function getDependency()
+    public function getDependency(): int|string
     {
         return $this->dependency;
     }
