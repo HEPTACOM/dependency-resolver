@@ -1,13 +1,16 @@
-image: heptacom/heptaconnect-pipeline:php74-7.0.0
+image: heptacom/shopware-6-plugin-pipeline:php83-node20-latest
 
 definitions:
     steps:
         -   step: &default-step
                 caches:
                     - composer
+                clone:
+                    depth: 1
                 after-script:
                     - cp -a .build test-results
                     - find test-results -type f -name '*.xml' -exec sed -i .bak -e "s|`pwd`/||" {} +
+                    - find test-results -type f ! -name '*.xml' -delete
                     - 'test ${BITBUCKET_EXIT_CODE} -eq 0 || composer config --list'
         -   step: &github-keyword-gate-step
                 <<: *default-step
@@ -30,30 +33,96 @@ definitions:
                 name: Mirror tags to Github
                 script:
                     - git remote add github "git@github.com:HEPTACOM/dependency-resolver.git"
-                    - git push --force github tag $BITBUCKET_TAG
-        -   step: &test-unit
-              name: Install and Unit test
-              script:
-                - composer install
-                - php vendor/bin/phpunit -c phpunit.xml.dist
+                    - git push --force github tag ${BITBUCKET_TAG}
+        -   step: &make-test
+                <<: *default-step
+                name: Run PHPUnit Tests
+                script:
+                    - make test
+        -   step: &make-cs-composer-normalize
+                <<: *default-step
+                name: Analyse composer.json structure
+                caches:
+                    - composer
+                script:
+                    - make cs-composer-normalize
+        -   step: &make-cs-style
+                <<: *default-step
+                name: Analyse PHP with Pint
+                caches:
+                    - composer
+                script:
+                    - make cs-style
+        -   step: &make-cs-jq
+                <<: *default-step
+                name: Analyse JSON with JQ
+                caches:
+                    - composer
+                script:
+                    - make cs-jq
+        -   step: &make-cs-phpmd
+                <<: *default-step
+                name: Analyse PHP with PHPMD
+                caches:
+                    - composer
+                script:
+                    - make cs-phpmd
+        -   step: &make-cs-phpstan
+                <<: *default-step
+                name: Analyse PHP with PHPStan
+                caches:
+                    - composer
+                script:
+                    - make cs-phpstan
+        -   step: &build-fix-and-commit
+                <<: *default-step
+                name: Build and fix (composer.json, Pint)
+                script:
+                    - make vendor
+                    - COMPOSER_EXTRA_ARGS=-vvv make -e cs-fix-composer-normalize
+                    - |
+                        if [[ $(git add -A -n | wc -l) -ne 0 ]]; then
+                            git add -A
+                            git commit -m "$ make cs-fix-composer-normalize"
+                        fi
+                    - COMPOSER_EXTRA_ARGS=-vvv make -e cs-fix-style
+                    - |
+                        if [[ $(git add -A -n | wc -l) -ne 0 ]]; then
+                            git add -A
+                            git commit -m "$ make cs-fix-style"
+                        fi
+                    - |
+                        if [[ $(git rev-parse HEAD) != $(git rev-parse "${BITBUCKET_COMMIT}") ]]; then
+                            echo "Changes get pushed, new pipeline will run later see"
+                            echo "https://bitbucket.org/${BITBUCKET_REPO_FULL_NAME}/commits/"$(git rev-parse HEAD)
+                            git push
+                            exit 1
+                        fi
 
 pipelines:
     branches:
         main:
             -   step: *github-keyword-gate-step
             -   step: *github-mirror-branch
-            -   step: *test-unit
+            -   parallel: &checks
+                    -   step: *make-cs-composer-normalize
+                    -   step: *make-cs-style
+                    -   step: *make-cs-jq
+                    -   step: *make-cs-phpmd
+                    -   step: *make-cs-phpstan
+                    -   step: *make-test
 
         '*.*.x':
             -   step: *github-keyword-gate-step
             -   step: *github-mirror-branch
-            -   step: *test-unit
+            -   parallel: *checks
 
     tags:
         '*':
-            -   step: *test-unit
+            -   parallel: *checks
             -   step: *github-keyword-gate-step
             -   step: *github-mirror-tag
 
     default:
-        -   step: *test-unit
+        -   step: *build-fix-and-commit
+        -   parallel: *checks
