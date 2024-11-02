@@ -1,5 +1,28 @@
-/.idea/
+# Ignore OS
+.DS_Store
+
+# Ignore package managers
 /vendor/
-/composer.lock
-/fixtures/*/vendor
-/fixtures/whois/composer.lock
+
+# Ignore tools
+/.dev-ops/bin/composer-normalize
+/.dev-ops/bin/composer-require-checker
+/.dev-ops/bin/pint/vendor/
+/.dev-ops/bin/phpstan/vendor/
+/.dev-ops/bin/phpunit/vendor/
+/.dev-ops/bin/phpmd
+/.dev-ops/phpmd-junit.xslt
+
+# Ignore build folder
+/.build
+/test-results/*
+!/test-results/.gitkeep
+
+# Ignore IDEs
+/.idea/*
+!/.idea/runConfigurations/*
+!/.idea/icon.png
+
+# Ignore non-prod-files
+*.js.map
+*.js.license.txt

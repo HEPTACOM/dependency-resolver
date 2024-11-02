@@ -1,0 +1,9 @@
+parameters:
+	level: 8
+	checkMissingIterableValueType: false
+	inferPrivatePropertyTypeFromConstructor: true
+	paths:
+		- ../src/
+	tmpDir: ../.build/phpstan/
+	scanDirectories:
+		- ../vendor/
