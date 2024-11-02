@@ -1,13 +1,13 @@
 {
     "name": "heptacom/dependency-resolver",
-    "type": "library",
     "description": "Basis library to resolve dependencies with graph / tree ",
+    "license": "MIT",
+    "type": "library",
     "keywords": [
         "sat",
         "sat-solver",
         "heptaconnect"
     ],
-    "license": "MIT",
     "authors": [
         {
             "name": "HEPTACOM GmbH",
@@ -29,10 +29,7 @@
     },
     "require-dev": {
         "ext-curl": "*",
-        "phpunit/phpunit": "^6.0 | ^7.0"
-    },
-    "replaces": {
-        "anthonykgross/dependency-resolver": "*"
+        "phpunit/phpunit": "^6.0 || ^7.0"
     },
     "autoload": {
         "psr-4": {
@@ -43,5 +40,8 @@
         "psr-4": {
             "Algorithm\\Tests\\": "tests/"
         }
+    },
+    "replaces": {
+        "anthonykgross/dependency-resolver": "*"
     }
 }
