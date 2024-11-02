@@ -1,0 +1,59 @@
+image: heptacom/heptaconnect-pipeline:php74-7.0.0
+
+definitions:
+    steps:
+        -   step: &default-step
+                caches:
+                    - composer
+                after-script:
+                    - cp -a .build test-results
+                    - find test-results -type f -name '*.xml' -exec sed -i .bak -e "s|`pwd`/||" {} +
+                    - 'test ${BITBUCKET_EXIT_CODE} -eq 0 || composer config --list'
+        -   step: &github-keyword-gate-step
+                <<: *default-step
+                name: Github Keyword Gate
+                script:
+                    - 'test $(git --no-pager log --full-history "--grep=${GITHUB_GREP_DENY_PATTERN}" | wc -l) -eq 0'
+                    - 'test $(git --no-pager log --full-history -S "${GITHUB_GREP_DENY_PATTERN}" --pickaxe-all --pickaxe-regex --oneline | wc -l) -eq 0'
+                after-script:
+                    - 'test ${BITBUCKET_EXIT_CODE} -eq 0 || git --no-pager log --full-history "--grep=${GITHUB_GREP_DENY_PATTERN}"'
+                    - 'test ${BITBUCKET_EXIT_CODE} -eq 0 || git --no-pager log --full-history -S "${GITHUB_GREP_DENY_PATTERN}" --pickaxe-all --pickaxe-regex --oneline'
+        -   step: &github-mirror-branch
+                <<: *default-step
+                name: Mirror to Github
+                script:
+                    - git fetch --unshallow origin
+                    - git remote add github "git@github.com:HEPTACOM/dependency-resolver.git"
+                    - git push --force github ${BITBUCKET_BRANCH}
+        -   step: &github-mirror-tag
+                <<: *default-step
+                name: Mirror tags to Github
+                script:
+                    - git remote add github "git@github.com:HEPTACOM/dependency-resolver.git"
+                    - git push --force github tag $BITBUCKET_TAG
+        -   step: &test-unit
+              name: Install and Unit test
+              script:
+                - composer install
+                - php vendor/bin/phpunit -c phpunit.xml.dist
+
+pipelines:
+    branches:
+        main:
+            -   step: *github-keyword-gate-step
+            -   step: *github-mirror-branch
+            -   step: *test-unit
+
+        '*.*.x':
+            -   step: *github-keyword-gate-step
+            -   step: *github-mirror-branch
+            -   step: *test-unit
+
+    tags:
+        '*':
+            -   step: *test-unit
+            -   step: *github-keyword-gate-step
+            -   step: *github-mirror-tag
+
+    default:
+        -   step: *test-unit
