@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Algorithm;
 
@@ -6,7 +8,7 @@ namespace Algorithm;
  * Created by Anthony K GROSS.
  * User: anthony.k.gross@gmail.com
  * Date: 23/3/17
- * Time: 20:25 PM
+ * Time: 20:25 PM.
  */
 class DependencyResolver
 {
@@ -20,7 +22,7 @@ class DependencyResolver
         $unresolved = [];
 
         // Resolve dependencies for each table
-        foreach (array_keys($tree) as $table) {
+        foreach (\array_keys($tree) as $table) {
             [$resolved, $unresolved, $returnImmediately] = self::resolver($table, $tree, $resolved, $unresolved, $resolveBehaviour);
 
             if ($returnImmediately) {
@@ -41,7 +43,7 @@ class DependencyResolver
         $unresolved[] = $item;
 
         foreach ($items[$item] as $dep) {
-            if (!array_key_exists($dep, $items)) {
+            if (!\array_key_exists($dep, $items)) {
                 if ($resolveBehaviour->isThrowOnMissingReference()) {
                     throw new Exception\MissingReferenceException($item, $dep);
                 }
@@ -49,11 +51,11 @@ class DependencyResolver
                 return [$resolved, $unresolved, true];
             }
 
-            if (in_array($dep, $resolved, true)) {
+            if (\in_array($dep, $resolved, true)) {
                 continue;
             }
 
-            if (in_array($dep, $unresolved, true)) {
+            if (\in_array($dep, $unresolved, true)) {
                 if ($resolveBehaviour->isThrowOnCircularReference()) {
                     throw new Exception\CircularReferenceException($item, $dep);
                 }
@@ -70,12 +72,12 @@ class DependencyResolver
         }
 
         // Add $item to $resolved if it's not already there
-        if (!in_array($item, $resolved, true)) {
+        if (!\in_array($item, $resolved, true)) {
             $resolved[] = $item;
         }
 
         // Remove all occurrences of $item in $unresolved
-        while (($index = array_search($item, $unresolved, true)) !== false) {
+        while (($index = \array_search($item, $unresolved, true)) !== false) {
             unset($unresolved[$index]);
         }
 

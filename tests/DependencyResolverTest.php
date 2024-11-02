@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Algorithm\Tests;
 
@@ -74,19 +76,19 @@ class DependencyResolverTest extends TestCase
             'C' => [],
         ];
         $resolution = DependencyResolver::resolve($tree);
-        static::assertEquals($resolution, ['C','B','A']);
+        static::assertEquals($resolution, ['C', 'B', 'A']);
     }
 
     public function testResolverCase2(): void
     {
-        $tree = array(
-            'A' => array('C'),
-            'B' => array('C'),
-            'C' => array(),
-            'D' => array('B'),
-        );
+        $tree = [
+            'A' => ['C'],
+            'B' => ['C'],
+            'C' => [],
+            'D' => ['B'],
+        ];
         $resolution = DependencyResolver::resolve($tree);
-        static::assertEquals($resolution, ['C','A','B','D']);
+        static::assertEquals($resolution, ['C', 'A', 'B', 'D']);
     }
 
     public function testResolverCase3(): void
@@ -99,7 +101,7 @@ class DependencyResolverTest extends TestCase
             'E' => ['C', 'B'],
         ];
         $resolution = DependencyResolver::resolve($tree);
-        static::assertEquals($resolution, ['A','B','C','D','E']);
+        static::assertEquals($resolution, ['A', 'B', 'C', 'D', 'E']);
     }
 
     public function testResolverCase4(): void
@@ -112,7 +114,7 @@ class DependencyResolverTest extends TestCase
             'E' => ['C', 'B'],
         ];
         $resolution = DependencyResolver::resolve($tree);
-        static::assertEquals($resolution, ['A','B','C','D','E']);
+        static::assertEquals($resolution, ['A', 'B', 'C', 'D', 'E']);
     }
 
     public function testMissingDependenciesCaseThrowBehaviour(): void
