@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Heptacom\DependencyResolver\Tests;
 
-use Heptacom\DependencyResolver\DependencyResolver;
-use Heptacom\DependencyResolver\Exception\CircularReferenceException;
-use Heptacom\DependencyResolver\Exception\MissingReferenceException;
-use Heptacom\DependencyResolver\ResolveBehaviour;
+use Algorithm\DependencyResolver;
+use Algorithm\Exception\CircularReferenceException;
+use Algorithm\Exception\MissingReferenceException;
+use Algorithm\ResolveBehaviour;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(DependencyResolver::class)]
 #[CoversClass(MissingReferenceException::class)]
 #[CoversClass(ResolveBehaviour::class)]
-class DependencyResolverTest extends TestCase
+class ReplaceTest extends TestCase
 {
     public function testCircleDependenciesCase1(): void
     {
@@ -27,7 +27,7 @@ class DependencyResolverTest extends TestCase
             'B' => ['C'],
             'C' => ['A'],
         ];
-        (new DependencyResolver())->resolve($tree);
+        DependencyResolver::resolve($tree);
     }
 
     public function testCircleDependenciesCaseThrowBehaviour(): void
@@ -39,9 +39,9 @@ class DependencyResolverTest extends TestCase
             'A' => ['B'],
             'B' => ['A'],
         ];
-        (new DependencyResolver())->resolve(
+        DependencyResolver::resolve(
             $tree,
-            new ResolveBehaviour(throwOnCircularReference: true),
+            ResolveBehaviour::create()->setThrowOnCircularReference(true)
         );
     }
 
@@ -51,9 +51,9 @@ class DependencyResolverTest extends TestCase
             'A' => ['B'],
             'B' => ['A'],
         ];
-        $resolution = (new DependencyResolver())->resolve(
+        $resolution = DependencyResolver::resolve(
             $tree,
-            new ResolveBehaviour(throwOnCircularReference: false),
+            ResolveBehaviour::create()->setThrowOnCircularReference(false)
         );
         static::assertEquals($resolution, []);
     }
@@ -70,7 +70,7 @@ class DependencyResolverTest extends TestCase
             'D' => ['C', 'A'],
             'E' => ['C', 'B'],
         ];
-        (new DependencyResolver())->resolve($tree);
+        DependencyResolver::resolve($tree);
     }
 
     public function testResolverCase1(): void
@@ -80,7 +80,7 @@ class DependencyResolverTest extends TestCase
             'B' => ['C'],
             'C' => [],
         ];
-        $resolution = (new DependencyResolver())->resolve($tree);
+        $resolution = DependencyResolver::resolve($tree);
         static::assertEquals($resolution, ['C', 'B', 'A']);
     }
 
@@ -92,7 +92,7 @@ class DependencyResolverTest extends TestCase
             'C' => [],
             'D' => ['B'],
         ];
-        $resolution = (new DependencyResolver())->resolve($tree);
+        $resolution = DependencyResolver::resolve($tree);
         static::assertEquals($resolution, ['C', 'A', 'B', 'D']);
     }
 
@@ -105,7 +105,7 @@ class DependencyResolverTest extends TestCase
             'D' => ['C', 'A'],
             'E' => ['C', 'B'],
         ];
-        $resolution = (new DependencyResolver())->resolve($tree);
+        $resolution = DependencyResolver::resolve($tree);
         static::assertEquals($resolution, ['A', 'B', 'C', 'D', 'E']);
     }
 
@@ -118,7 +118,7 @@ class DependencyResolverTest extends TestCase
             'C' => ['B'],
             'E' => ['C', 'B'],
         ];
-        $resolution = (new DependencyResolver())->resolve($tree);
+        $resolution = DependencyResolver::resolve($tree);
         static::assertEquals($resolution, ['A', 'B', 'C', 'D', 'E']);
     }
 
@@ -130,9 +130,9 @@ class DependencyResolverTest extends TestCase
         $tree = [
             'B' => ['A'],
         ];
-        (new DependencyResolver())->resolve(
+        DependencyResolver::resolve(
             $tree,
-            new ResolveBehaviour(throwOnMissingReference: true),
+            ResolveBehaviour::create()->setThrowOnMissingReference(true)
         );
     }
 
@@ -141,9 +141,9 @@ class DependencyResolverTest extends TestCase
         $tree = [
             'B' => ['A'],
         ];
-        $resolution = (new DependencyResolver())->resolve(
+        $resolution = DependencyResolver::resolve(
             $tree,
-            new ResolveBehaviour(throwOnMissingReference: false),
+            ResolveBehaviour::create()->setThrowOnMissingReference(false)
         );
         static::assertEquals($resolution, []);
     }

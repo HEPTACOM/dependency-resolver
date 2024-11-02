@@ -2,28 +2,30 @@
 
 declare(strict_types=1);
 
-namespace Algorithm;
+namespace Heptacom\DependencyResolver;
 
-/**
- * Created by Anthony K GROSS.
- * User: anthony.k.gross@gmail.com
- * Date: 23/3/17
- * Time: 20:25 PM.
- */
-class DependencyResolver
+final class DependencyResolver
 {
     /**
-     * @throws Exception\ResolveException
+     * @param array<array-key, array-key[]> $tree
+     *
+     * @return array-key[]
+     *
+     * @throws Exception\ResolveExceptionContract
      */
-    public static function resolve(array $tree, ?ResolveBehaviour $resolveBehaviour = null): array
+    public function resolve(array $tree, ?ResolveBehaviour $resolveBehaviour = null): array
     {
-        $resolveBehaviour = $resolveBehaviour ?? ResolveBehaviour::create()->setThrowOnCircularReference(true);
+        $resolveBehaviour = $resolveBehaviour ?? (new ResolveBehaviour())->withThrowOnCircularReference(true);
         $resolved = [];
         $unresolved = [];
 
         // Resolve dependencies for each table
         foreach (\array_keys($tree) as $table) {
-            [$resolved, $unresolved, $returnImmediately] = self::resolver($table, $tree, $resolved, $unresolved, $resolveBehaviour);
+            [
+                'resolved' => $resolved,
+                'unresolved' => $unresolved,
+                'returnImmediately' => $returnImmediately,
+            ] = self::resolver($table, $tree, $resolved, $unresolved, $resolveBehaviour);
 
             if ($returnImmediately) {
                 return $resolved;
@@ -34,19 +36,36 @@ class DependencyResolver
     }
 
     /**
-     * @throws Exception\ResolveException
+     * @param array<array-key, array-key[]> $tree
+     *
+     * @return array{
+     *     resolved: array-key[],
+     *     unresolved: array-key[],
+     *     returnImmediately: bool
+     * }
+     *
+     * @throws Exception\ResolveExceptionContract
      */
-    private static function resolver(string|int $item, array $items, array $resolved, array $unresolved, ResolveBehaviour $resolveBehaviour): array
-    {
+    private function resolver(
+        string|int $item,
+        array $tree,
+        array $resolved,
+        array $unresolved,
+        ResolveBehaviour $resolveBehaviour,
+    ): array {
         $unresolved[] = $item;
 
-        foreach ($items[$item] as $dep) {
-            if (!\array_key_exists($dep, $items)) {
-                if ($resolveBehaviour->isThrowOnMissingReference()) {
+        foreach ($tree[$item] as $dep) {
+            if (!\array_key_exists($dep, $tree)) {
+                if ($resolveBehaviour->throwOnMissingReference) {
                     throw new Exception\MissingReferenceException($item, $dep);
                 }
 
-                return [$resolved, $unresolved, true];
+                return [
+                    'resolved' => $resolved,
+                    'unresolved' => $unresolved,
+                    'returnImmediately' => true,
+                ];
             }
 
             if (\in_array($dep, $resolved, true)) {
@@ -54,18 +73,30 @@ class DependencyResolver
             }
 
             if (\in_array($dep, $unresolved, true)) {
-                if ($resolveBehaviour->isThrowOnCircularReference()) {
+                if ($resolveBehaviour->throwOnCircularReference) {
                     throw new Exception\CircularReferenceException($item, $dep);
                 }
 
-                return [$resolved, $unresolved, true];
+                return [
+                    'resolved' => $resolved,
+                    'unresolved' => $unresolved,
+                    'returnImmediately' => true,
+                ];
             }
 
             $unresolved[] = $dep;
-            [$resolved, $unresolved, $returnImmediately] = self::resolver($dep, $items, $resolved, $unresolved, $resolveBehaviour);
+            [
+                'resolved' => $resolved,
+                'unresolved' => $unresolved,
+                'returnImmediately' => $returnImmediately,
+            ] = self::resolver($dep, $tree, $resolved, $unresolved, $resolveBehaviour);
 
             if ($returnImmediately) {
-                return [$resolved, $unresolved, $returnImmediately];
+                return [
+                    'resolved' => $resolved,
+                    'unresolved' => $unresolved,
+                    'returnImmediately' => $returnImmediately,
+                ];
             }
         }
 
@@ -79,6 +110,10 @@ class DependencyResolver
             unset($unresolved[$index]);
         }
 
-        return [$resolved, $unresolved, false];
+        return [
+            'resolved' => $resolved,
+            'unresolved' => $unresolved,
+            'returnImmediately' => false,
+        ];
     }
 }

@@ -29,12 +29,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Algorithm\\": "src/"
+            "Algorithm\\": "replace/",
+            "Heptacom\\DependencyResolver\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Algorithm\\Tests\\": "tests/"
+            "Heptacom\\DependencyResolver\\Tests\\": "tests/"
         }
     },
     "replaces": {

@@ -24,7 +24,7 @@ $tree  = [
     'D' => ['C', 'A'],
     'E' => ['C', 'B'],
 ];
-$resolution = \Algorithm\DependencyResolver::resolve($tree);
+$resolution = (new \Heptacom\DependencyResolver\DependencyResolver())->resolve($tree);
 print($resolution);
 // ['A','B','C','D','E']
 ```
@@ -35,9 +35,10 @@ $tree  = [
     'B' => ['C'],
     'C' => ['A'],
 ];
-$resolution = \Algorithm\DependencyResolver::resolve($tree);
+$resolution = (new \Heptacom\DependencyResolver\DependencyResolver())->resolve($tree);
 // RuntimeException : Circular dependency: C -> A
 ```
+
 **Documentation**
 - <https://www.electricmonk.nl/log/2008/08/07/dependency-resolving-algorithm/>
 - <http://mamchenkov.net/wordpress/2016/11/22/dependency-resolution-with-graphs-in-php/>
@@ -52,5 +53,5 @@ $resolution = \Algorithm\DependencyResolver::resolve($tree);
 - <https://github.com/anthonykgross>
 
 ## Copyright and license
-Code and documentation copyright 2020. Code released under [the MIT license](https://github.com/anthonykgross/dependency-resolver/blob/master/LICENSE).
+Code and documentation copyright 2020. Code released under [the MIT license](./LICENSE.md).
 

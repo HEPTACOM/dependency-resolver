@@ -2,40 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Algorithm;
+namespace Heptacom\DependencyResolver;
 
-class ResolveBehaviour
+final class ResolveBehaviour
 {
-    private bool $throwOnCircularReference = true;
-
-    private bool $throwOnMissingReference = false;
-
-    public static function create(): self
-    {
-        return new self();
+    public function __construct(
+        public readonly bool $throwOnCircularReference = false,
+        public readonly bool $throwOnMissingReference = false,
+    ) {
     }
 
-    public function isThrowOnCircularReference(): bool
+    public function withThrowOnCircularReference(bool $throwOnCircularReference): self
     {
-        return $this->throwOnCircularReference;
+        return new self(
+            $throwOnCircularReference,
+            $this->throwOnMissingReference,
+        );
     }
 
-    public function setThrowOnCircularReference(bool $throwOnCircularReference): self
+    public function withThrowOnMissingReference(bool $throwOnMissingReference): self
     {
-        $this->throwOnCircularReference = $throwOnCircularReference;
-
-        return $this;
-    }
-
-    public function isThrowOnMissingReference(): bool
-    {
-        return $this->throwOnMissingReference;
-    }
-
-    public function setThrowOnMissingReference(bool $throwOnMissingReference): self
-    {
-        $this->throwOnMissingReference = $throwOnMissingReference;
-
-        return $this;
+        return new self(
+            $this->throwOnCircularReference,
+            $throwOnMissingReference,
+        );
     }
 }
